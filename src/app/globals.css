@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-noir: #0f0f0f;
+  --color-noir-light: #1a1a1a;
+  --color-noir-soft: #2a2a2a;
+  --color-or: #c9a84c;
+  --color-or-light: #d4b86a;
+  --color-fond: #faf9f7;
+  --color-fond-alt: #f3f1ed;
+  --color-texte: #1a1a1a;
+  --color-texte-light: #71717a;
+  --color-bordure: #e4e2dd;
+  --color-blanc: #ffffff;
+  --color-absent: #b91c1c;
+}
+
+/* Light mode (défaut) */
+:root {
+  --bg-body: #faf9f7;
+  --bg-card: #ffffff;
+  --text-main: #1a1a1a;
+  --text-muted: #71717a;
+  --border-main: #e4e2dd;
+}
+
+/* Dark mode */
+.dark {
+  --bg-body: #111111;
+  --bg-card: #191919;
+  --text-main: #f0efe9;
+  --text-muted: #8a8a8a;
+  --border-main: #2a2a2a;
+}
+
+body {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+/* Glass card */
+.glass {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+}
+
+.dark .glass {
+  background: rgba(25, 25, 25, 0.6);
+}
+
+/* Bulles flottantes */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Défilement produits */
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* Filet tricolore */
+.tricolore {
+  height: 2px;
+  background: linear-gradient(to right, #002395 33%, #ffffff 33%, #ffffff 66%, #ed2939 66%);
+}

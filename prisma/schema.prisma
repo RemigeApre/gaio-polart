@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+model Market {
+  id        String     @id @default(cuid())
+  name      String
+  city      String
+  address   String
+  dayOfWeek DayOfWeek
+  startTime String     // Format "08:00"
+  endTime   String     // Format "13:00"
+  active    Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  absences  Absence[]
+
+  @@map("markets")
+}
+
+model Absence {
+  id       String   @id @default(cuid())
+  date     DateTime
+  reason   String?
+  market   Market   @relation(fields: [marketId], references: [id], onDelete: Cascade)
+  marketId String
+
+  @@unique([marketId, date])
+  @@map("absences")
+}
