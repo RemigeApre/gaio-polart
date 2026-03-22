@@ -18,14 +18,19 @@ function decodeList(encoded: string): string[] {
 
 export function ShoppingListPage() {
   const {
-    items, history, checkedCount, mounted,
+    items, history, presets, checkedCount, canAddPreset, mounted,
     addItem, toggleItem, removeItem, clearChecked, clearAll, restoreBatch, clearHistory,
+    savePreset, loadPreset, deletePreset, renamePreset,
   } = useShoppingList();
   const [input, setInput] = useState("");
   const [showHistory, setShowHistory] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
+  const [showSavePreset, setShowSavePreset] = useState(false);
+  const [presetName, setPresetName] = useState("");
+  const [editingPresetId, setEditingPresetId] = useState<string | null>(null);
+  const [editingPresetName, setEditingPresetName] = useState("");
 
   // Import depuis URL partagée
   const searchParams = useSearchParams();
@@ -186,6 +191,111 @@ export function ShoppingListPage() {
           </button>
         </div>
       </div>
+
+      {/* Listes récurrentes */}
+      {(presets.length > 0 || (canAddPreset && items.filter((i) => !i.checked).length > 0)) && (
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-2.5 px-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+              Mes listes récurrentes {presets.length > 0 && `(${presets.length}/3)`}
+            </span>
+            {canAddPreset && items.filter((i) => !i.checked).length > 0 && (
+              <button
+                onClick={() => setShowSavePreset(!showSavePreset)}
+                className="text-[11px] font-medium px-2.5 py-1 rounded-lg transition-colors hover:bg-or/10 text-or"
+              >
+                + Sauvegarder la liste actuelle
+              </button>
+            )}
+          </div>
+
+          {/* Formulaire de sauvegarde */}
+          {showSavePreset && (
+            <div className="card px-4 py-3 mb-2.5 flex gap-2">
+              <input
+                type="text"
+                value={presetName}
+                onChange={(e) => setPresetName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    savePreset(presetName);
+                    setPresetName("");
+                    setShowSavePreset(false);
+                  }
+                }}
+                placeholder="Nom de la liste (ex : Repas du dimanche)"
+                className="flex-1 text-[14px] px-3 py-2 rounded-lg outline-none border transition-colors focus:border-or/50"
+                style={{ backgroundColor: "var(--bg-body)", borderColor: "var(--border-main)", color: "var(--text-main)" }}
+                autoFocus
+              />
+              <button
+                onClick={() => { savePreset(presetName); setPresetName(""); setShowSavePreset(false); }}
+                disabled={items.filter((i) => !i.checked).length === 0}
+                className="px-4 py-2 rounded-lg bg-or text-noir-light text-[12px] font-bold disabled:opacity-30 transition-colors hover:bg-or-light"
+              >
+                Sauvegarder
+              </button>
+            </div>
+          )}
+
+          {/* Liste des presets */}
+          {presets.length > 0 && (
+            <div className="space-y-2">
+              {presets.map((preset) => (
+                <div key={preset.id} className="card px-4 py-3 flex items-center gap-3">
+                  {editingPresetId === preset.id ? (
+                    <input
+                      type="text"
+                      value={editingPresetName}
+                      onChange={(e) => setEditingPresetName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") { renamePreset(preset.id, editingPresetName); setEditingPresetId(null); }
+                        if (e.key === "Escape") setEditingPresetId(null);
+                      }}
+                      onBlur={() => { renamePreset(preset.id, editingPresetName); setEditingPresetId(null); }}
+                      className="flex-1 text-[14px] px-2 py-1 rounded-lg outline-none border transition-colors focus:border-or/50"
+                      style={{ backgroundColor: "var(--bg-body)", borderColor: "var(--border-main)", color: "var(--text-main)" }}
+                      autoFocus
+                    />
+                  ) : (
+                    <div className="flex-1 min-w-0">
+                      <button
+                        onClick={() => { setEditingPresetId(preset.id); setEditingPresetName(preset.name); }}
+                        className="text-[14px] font-semibold text-left hover:text-or transition-colors"
+                        style={{ color: "var(--text-main)" }}
+                        title="Cliquer pour renommer"
+                      >
+                        {preset.name}
+                      </button>
+                      <p className="text-[11px] mt-0.5 truncate" style={{ color: "var(--text-muted)" }}>
+                        {preset.items.length} article{preset.items.length > 1 ? "s" : ""} · {preset.items.slice(0, 3).join(", ")}{preset.items.length > 3 ? "..." : ""}
+                      </p>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      onClick={() => loadPreset(preset.id)}
+                      className="text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-or/10 text-or hover:bg-or/20 transition-colors"
+                    >
+                      Charger
+                    </button>
+                    <button
+                      onClick={() => deletePreset(preset.id)}
+                      className="w-7 h-7 flex items-center justify-center rounded-full bg-red-500/[0.06] hover:bg-red-500/15 text-red-400/50 hover:text-red-400 transition-colors"
+                      aria-label="Supprimer la liste"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Liste */}
       <div className="card overflow-hidden mb-4">

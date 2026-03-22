@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Cormorant_Garamond } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { CookieBanner } from "@/components/CookieBanner";
 import "./globals.css";
 
 const inter = Inter({
@@ -248,7 +249,10 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col font-[family-name:var(--font-inter)]">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          {children}
+          <CookieBanner />
+        </ThemeProvider>
       </body>
     </html>
   );

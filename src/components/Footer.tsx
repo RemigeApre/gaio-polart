@@ -44,10 +44,14 @@ export function Footer() {
           </p>
         </div>
 
-        <div className="border-t border-blanc/10 mt-5 pt-4 flex flex-col sm:flex-row items-center justify-between gap-1.5">
-          <p className="text-blanc/50 text-[11px] font-medium">
-            &copy; {new Date().getFullYear()} Gaio Polart
-          </p>
+        <div className="border-t border-blanc/10 mt-5 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <div className="flex items-center gap-3 flex-wrap justify-center text-blanc/50 text-[11px] font-medium">
+            <span>&copy; {new Date().getFullYear()} Gaio Polart</span>
+            <span className="text-blanc/15">·</span>
+            <a href="/mentions-legales" className="hover:text-or transition-colors">Mentions légales</a>
+            <span className="text-blanc/15">·</span>
+            <a href="/confidentialite" className="hover:text-or transition-colors">Confidentialité</a>
+          </div>
           <p className="text-blanc/40 text-[11px]">
             Site réalisé par{" "}
             <a href="https://legeai-informatique.fr" target="_blank" rel="noopener noreferrer" className="text-blanc/60 hover:text-or font-medium transition-colors">
