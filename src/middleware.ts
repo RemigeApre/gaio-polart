@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Protéger les routes /dashboard/*
+  // Protéger les routes /dashboard/* : pas de cookie → login
   if (pathname.startsWith("/dashboard")) {
     const sessionToken = request.cookies.get("gp_session")?.value;
 
@@ -14,19 +14,9 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Si connecté et va sur /connexion → redirige vers dashboard
-  if (pathname === "/connexion") {
-    const sessionToken = request.cookies.get("gp_session")?.value;
-
-    if (sessionToken) {
-      const dashboardUrl = new URL("/dashboard", request.url);
-      return NextResponse.redirect(dashboardUrl);
-    }
-  }
-
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/connexion"],
+  matcher: ["/dashboard/:path*"],
 };
