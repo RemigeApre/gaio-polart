@@ -15,7 +15,8 @@ export interface MarketData {
   dayOfWeek: DayOfWeek;
   startTime: string;
   endTime: string;
-  isAbsentToday: boolean;
+  absenceDates: string[]; // ["2026-03-25", ...]
+  absenceReasons: Record<string, string | undefined>;
 }
 
 export const DAY_LABELS: Record<DayOfWeek, string> = {
@@ -26,6 +27,16 @@ export const DAY_LABELS: Record<DayOfWeek, string> = {
   FRIDAY: "Vendredi",
   SATURDAY: "Samedi",
   SUNDAY: "Dimanche",
+};
+
+export const DAY_LABELS_SHORT: Record<DayOfWeek, string> = {
+  MONDAY: "Lun",
+  TUESDAY: "Mar",
+  WEDNESDAY: "Mer",
+  THURSDAY: "Jeu",
+  FRIDAY: "Ven",
+  SATURDAY: "Sam",
+  SUNDAY: "Dim",
 };
 
 export const DAY_ORDER: DayOfWeek[] = [
@@ -55,4 +66,8 @@ export function getCurrentDayOfWeek(): DayOfWeek {
 
 export function getDayIndex(day: DayOfWeek): number {
   return DAY_ORDER.indexOf(day);
+}
+
+export function dateToDayOfWeek(date: Date): DayOfWeek {
+  return JS_DAY_TO_ENUM[date.getDay()];
 }

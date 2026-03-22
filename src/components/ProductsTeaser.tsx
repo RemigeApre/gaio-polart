@@ -1,27 +1,35 @@
 "use client";
 
 const PRODUCTS = [
-  "Poulet fermier",
-  "Dinde",
-  "Lapin",
-  "Coq",
-  "Poule",
-  "Pintade",
-  "Oeufs frais",
-  "Aiguillettes",
-  "Brochettes",
-  "Émincé",
-  "Lièvre",
-  "Gibier",
-  "Foie gras",
-  "Chapon",
+  { name: "Poulet fermier", size: "lg" },
+  { name: "Dinde", size: "base" },
+  { name: "Lapin", size: "xl" },
+  { name: "Coq", size: "sm" },
+  { name: "Poule", size: "base" },
+  { name: "Pintade", size: "lg" },
+  { name: "Oeufs frais", size: "sm" },
+  { name: "Aiguillettes", size: "base" },
+  { name: "Brochettes", size: "lg" },
+  { name: "Émincé", size: "sm" },
+  { name: "Lièvre", size: "xl" },
+  { name: "Gibier", size: "2xl" },
+  { name: "Foie gras", size: "lg" },
+  { name: "Chapon", size: "base" },
 ];
+
+const SIZE_CLASSES: Record<string, string> = {
+  sm: "text-sm opacity-40",
+  base: "text-base opacity-55",
+  lg: "text-lg opacity-70",
+  xl: "text-xl opacity-80",
+  "2xl": "text-2xl opacity-90",
+};
 
 export function ProductsTeaser() {
   return (
-    <section className="py-14">
-      <div className="text-center mb-8">
-        <span className="text-[11px] font-semibold text-or uppercase tracking-[0.15em]">
+    <section className="py-16">
+      <div className="text-center mb-10">
+        <span className="text-[11px] font-semibold text-or uppercase tracking-[0.18em]">
           Nos produits
         </span>
         <p className="text-sm mt-1.5 italic" style={{ color: "var(--text-muted)" }}>
@@ -29,28 +37,16 @@ export function ProductsTeaser() {
         </p>
       </div>
 
-      {/* Nuage de mots */}
-      <div className="max-w-2xl mx-auto px-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-3">
-        {PRODUCTS.map((product, i) => {
-          const sizes = [
-            "text-sm", "text-base", "text-lg", "text-xl", "text-2xl",
-          ];
-          const opacities = [0.35, 0.5, 0.65, 0.8, 1];
-          const tier = i % 5;
-          const isHighlight = i % 4 === 0;
-
+      <div className="max-w-2xl mx-auto px-5 flex flex-wrap items-baseline justify-center gap-x-5 gap-y-3.5">
+        {PRODUCTS.map(({ name, size }, i) => {
+          const isGold = i % 3 === 0;
           return (
             <span
-              key={product}
-              className={`${sizes[tier]} font-[family-name:var(--font-calligraphic)] italic transition-colors duration-300 hover:text-or cursor-default`}
-              style={{
-                color: isHighlight
-                  ? "var(--color-or)"
-                  : "var(--text-main)",
-                opacity: isHighlight ? 0.9 : opacities[tier],
-              }}
+              key={name}
+              className={`${SIZE_CLASSES[size]} font-[family-name:var(--font-calligraphic)] italic cursor-default hover:!opacity-100 hover:!text-or`}
+              style={{ color: isGold ? "var(--color-or)" : "var(--text-main)" }}
             >
-              {product}
+              {name}
             </span>
           );
         })}

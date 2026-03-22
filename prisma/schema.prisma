@@ -17,6 +17,12 @@ enum DayOfWeek {
   SUNDAY
 }
 
+enum Role {
+  ADMIN
+  DIRECTION
+  VIEWER
+}
+
 model Market {
   id        String     @id @default(cuid())
   name      String
@@ -42,4 +48,31 @@ model Absence {
 
   @@unique([marketId, date])
   @@map("absences")
+}
+
+model User {
+  id        String    @id @default(cuid())
+  username  String    @unique
+  password  String    // bcrypt hash
+  name      String
+  role      Role      @default(VIEWER)
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  sessions  Session[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([expiresAt])
+  @@map("sessions")
 }

@@ -1,6 +1,6 @@
 # Gaio Polart
 
-Site vitrine pour l'entreprise Gaio Polart — Commerce de volailles de qualité sur les marchés.
+Site vitrine pour l'entreprise Gaio Polart — Commerce de volailles et gibier de qualité sur les marchés d'Île-de-France.
 
 ## Stack
 
@@ -89,7 +89,7 @@ Copier `.env.example` en `.env.prod` et modifier les valeurs :
 
 ```bash
 cp .env.example .env.prod
-# Éditer .env.prod avec un vrai mot de passe PostgreSQL
+# Éditer .env.prod avec un vrai mot de passe PostgreSQL et le bon domaine
 ```
 
 ### 2. Builder et lancer
@@ -148,16 +148,25 @@ gaio-polart/
 ├── prisma/
 │   ├── schema.prisma      # Schéma BDD
 │   └── seed.ts            # Données initiales
+├── public/
+│   ├── favicon.svg         # Favicon GP
+│   └── robots.txt          # SEO
 ├── src/
 │   ├── app/
 │   │   ├── globals.css    # Styles globaux + thème
-│   │   ├── layout.tsx     # Layout principal
-│   │   └── page.tsx       # Page d'accueil
+│   │   ├── layout.tsx     # Layout principal (SEO, structured data)
+│   │   ├── page.tsx       # Page d'accueil
+│   │   ├── marches/       # Page marchés
+│   │   └── sitemap.ts     # Sitemap dynamique
 │   ├── components/
-│   │   ├── Header.tsx
+│   │   ├── Header.tsx     # Navigation (mobile burger inclus)
 │   │   ├── Footer.tsx
-│   │   ├── MarketCard.tsx
-│   │   └── MarketList.tsx
+│   │   ├── HeroMarket.tsx # Prochain marché + carte
+│   │   ├── OrderBanner.tsx # Réservation
+│   │   ├── ProductsTeaser.tsx # Nuage produits
+│   │   ├── About.tsx      # Notre histoire
+│   │   ├── MarchesPage.tsx # Page marchés complète
+│   │   └── ThemeProvider.tsx # Dark/light mode
 │   └── lib/
 │       ├── prisma.ts      # Client Prisma singleton
 │       ├── markets.ts     # Requêtes marchés
@@ -182,6 +191,7 @@ gaio-polart/
 | `POSTGRES_DB` | Nom de la base |
 | `DATABASE_URL` | URL de connexion complète |
 | `NODE_ENV` | `development` ou `production` |
+| `NEXT_PUBLIC_SITE_URL` | URL du site (pour SEO, Open Graph, sitemap) |
 
 ---
 
@@ -217,3 +227,31 @@ docker compose -f docker-compose.dev.yml up --build
 ```
 
 > Le hot-reload fonctionne pour les fichiers `.tsx` — pas besoin de relancer pour les changements de code frontend. Relancer uniquement si modif Docker, dépendances ou config.
+
+---
+
+## À venir
+
+Les fonctionnalités suivantes sont prévues mais en attente d'informations ou de développement futur :
+
+### En attente d'informations
+
+- **Numéro de téléphone** : à confirmer avec les parents, sera affiché dans le header/footer et le bouton "Nous contacter"
+- **Adresse mail de contact** : à confirmer, pour le formulaire de contact
+- **Section produits détaillée** : à construire en collaboration avec les parents (descriptions, catégories)
+- **Gestion des prix** : à définir comment les parents souhaitent les afficher (fourchettes, prix au kg, etc.)
+
+### Développement futur (v0.2 — après la page de connexion)
+
+- **Page de connexion** : authentification pour les 3 utilisateurs (père, mère, fils)
+- **Gestion des absences** : interface admin pour signaler les absences sur un marché
+- **Gestion des marchés** : ajout, modification, suppression de marchés depuis l'interface
+- **Gestion des horaires** : modification des horaires exceptionnels (jours fériés, été, Noël)
+- **Page contact** : formulaire de contact avec mail et téléphone
+
+### Améliorations prévues
+
+- **Photos** : stand, produits, équipe (humanise le site)
+- **Avis clients** ou témoignages
+- **Réseaux sociaux** : liens vers les comptes si existants
+- **Image Open Graph** : visuel personnalisé pour le partage sur WhatsApp, Facebook, etc.
