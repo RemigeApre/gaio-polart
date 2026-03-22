@@ -99,7 +99,7 @@ export function ShoppingList() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
               placeholder="Ajouter un article..."
-              className="flex-1 text-[13px] px-3 py-2 rounded-lg outline-none border transition-colors focus:border-or/50"
+              className="flex-1 text-[16px] px-3 py-2 rounded-lg outline-none border transition-colors focus:border-or/50"
               style={{
                 backgroundColor: "var(--bg-body)",
                 borderColor: "var(--border-main)",
