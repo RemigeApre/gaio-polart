@@ -1,9 +1,27 @@
 import { prisma } from "./prisma";
 import { MarketData, DayOfWeek, DAY_ORDER } from "./types";
 
+function localDateStr(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function stripTime(d: Date): Date {
+  const r = new Date(d);
+  r.setHours(0, 0, 0, 0);
+  return r;
+}
+
+function daysBetween(a: Date, b: Date): number {
+  const aStripped = stripTime(a);
+  const bStripped = stripTime(b);
+  return Math.round((bStripped.getTime() - aStripped.getTime()) / (1000 * 60 * 60 * 24));
+}
+
 /**
  * Récupère tous les marchés actifs avec leurs absences
- * sur une plage configurable (par défaut 90 jours pour le calendrier).
  */
 export async function getAllMarkets(daysAhead = 90): Promise<MarketData[]> {
   const today = new Date();
@@ -31,10 +49,10 @@ export async function getAllMarkets(daysAhead = 90): Promise<MarketData[]> {
     dayOfWeek: market.dayOfWeek as DayOfWeek,
     startTime: market.startTime,
     endTime: market.endTime,
-    absenceDates: market.absences.map((a) => a.date.toISOString().split("T")[0]),
+    absenceDates: market.absences.map((a) => localDateStr(a.date)),
     absenceReasons: market.absences.reduce(
       (acc, a) => {
-        acc[a.date.toISOString().split("T")[0]] = a.reason || undefined;
+        acc[localDateStr(a.date)] = a.reason || undefined;
         return acc;
       },
       {} as Record<string, string | undefined>
@@ -42,85 +60,120 @@ export async function getAllMarkets(daysAhead = 90): Promise<MarketData[]> {
   }));
 }
 
-/**
- * Trie les marchés par proximité temporelle
- */
 export function sortMarketsByProximity(
   markets: MarketData[],
   currentDay: DayOfWeek
 ): MarketData[] {
   const currentIndex = DAY_ORDER.indexOf(currentDay);
-
   return [...markets].sort((a, b) => {
-    const distA =
-      (DAY_ORDER.indexOf(a.dayOfWeek) - currentIndex + 7) % 7;
-    const distB =
-      (DAY_ORDER.indexOf(b.dayOfWeek) - currentIndex + 7) % 7;
+    const distA = (DAY_ORDER.indexOf(a.dayOfWeek) - currentIndex + 7) % 7;
+    const distB = (DAY_ORDER.indexOf(b.dayOfWeek) - currentIndex + 7) % 7;
     if (distA !== distB) return distA - distB;
     return a.startTime.localeCompare(b.startTime);
   });
 }
 
+const JS_DAY_TO_ENUM: DayOfWeek[] = [
+  "SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY",
+  "THURSDAY", "FRIDAY", "SATURDAY",
+];
+
 /**
- * Retourne les marchés groupés :
- * - current: marché(s) en cours maintenant
- * - next: prochain(s) marché(s)
- * - upcoming: marchés des 2 jours suivants
+ * Prochaine date pour un jour de la semaine donné, à partir d'aujourd'hui.
+ */
+function getNextDateForDay(dayOfWeek: DayOfWeek, from: Date): Date {
+  const targetIndex = DAY_ORDER.indexOf(dayOfWeek);
+  const fromJsDay = from.getDay();
+  const fromIndex = (fromJsDay + 6) % 7;
+  let diff = targetIndex - fromIndex;
+  if (diff < 0) diff += 7;
+  const d = stripTime(from);
+  d.setDate(d.getDate() + diff);
+  return d;
+}
+
+/**
+ * Retourne les marchés groupés en prenant en compte les absences :
+ * - current: marché(s) en cours maintenant (et pas absent aujourd'hui)
+ * - next: prochain(s) marché(s) (non absents)
+ * - upcoming: marchés des 2 jours suivants (non absents)
  */
 export function groupMarketsByUrgency(
   markets: MarketData[],
   now: Date
 ) {
-  const JS_DAY_TO_ENUM: DayOfWeek[] = [
-    "SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY",
-    "THURSDAY", "FRIDAY", "SATURDAY",
-  ];
-
-  const currentDay = JS_DAY_TO_ENUM[now.getDay()];
   const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
-  const todayStr = now.toISOString().split("T")[0];
+  const today = stripTime(now);
+  const todayStr = localDateStr(today);
 
-  // Filtrer les marchés absents aujourd'hui
-  const availableMarkets = markets.filter(
-    (m) => !m.absenceDates.includes(todayStr) || m.dayOfWeek !== currentDay
-  );
+  // Pour chaque marché, trouver sa prochaine occurrence non absente
+  const entries: { market: MarketData; date: string; distDays: number }[] = [];
 
-  const sorted = sortMarketsByProximity(availableMarkets, currentDay);
+  for (const market of markets) {
+    let nextDate = getNextDateForDay(market.dayOfWeek, today);
+    let dateStr = localDateStr(nextDate);
+    let dist = daysBetween(today, nextDate);
+
+    // Si c'est aujourd'hui mais le marché est fini, passer à la semaine prochaine
+    if (dist === 0 && currentTime >= market.endTime) {
+      nextDate.setDate(nextDate.getDate() + 7);
+      dateStr = localDateStr(nextDate);
+      dist = 7;
+    }
+
+    // Si absent, essayer semaine prochaine (max 2 tentatives)
+    for (let attempt = 0; attempt < 2; attempt++) {
+      if (!market.absenceDates.includes(dateStr)) break;
+      nextDate.setDate(nextDate.getDate() + 7);
+      dateStr = localDateStr(nextDate);
+      dist += 7;
+    }
+
+    // Si toujours absent, on skip
+    if (market.absenceDates.includes(dateStr)) continue;
+
+    entries.push({ market, date: dateStr, distDays: dist });
+  }
+
+  // Trier par distance puis par heure
+  entries.sort((a, b) => {
+    if (a.distDays !== b.distDays) return a.distDays - b.distDays;
+    return a.market.startTime.localeCompare(b.market.startTime);
+  });
 
   const current: MarketData[] = [];
   const next: MarketData[] = [];
   const upcoming: MarketData[] = [];
 
-  let nextDay: DayOfWeek | null = null;
-  const upcomingDays = new Set<DayOfWeek>();
+  let nextDate: string | null = null;
+  const upcomingDates = new Set<string>();
 
-  for (const market of sorted) {
-    const isToday = market.dayOfWeek === currentDay;
+  for (const entry of entries) {
+    const isToday = entry.date === todayStr;
 
-    if (isToday && currentTime >= market.startTime && currentTime < market.endTime) {
-      current.push(market);
+    // Marché en cours ?
+    if (isToday && currentTime >= entry.market.startTime && currentTime < entry.market.endTime) {
+      current.push(entry.market);
       continue;
     }
 
-    if (isToday && currentTime >= market.endTime) {
+    // Prochain marché
+    if (next.length === 0 && nextDate === null) {
+      nextDate = entry.date;
+    }
+
+    if (entry.date === nextDate) {
+      next.push(entry.market);
       continue;
     }
 
-    if (next.length === 0 && nextDay === null) {
-      nextDay = market.dayOfWeek;
+    // Upcoming : les 2 dates suivantes
+    if (upcomingDates.size < 2) {
+      upcomingDates.add(entry.date);
     }
 
-    if (market.dayOfWeek === nextDay) {
-      next.push(market);
-      continue;
-    }
-
-    if (upcomingDays.size < 2) {
-      upcomingDays.add(market.dayOfWeek);
-    }
-
-    if (upcomingDays.has(market.dayOfWeek)) {
-      upcoming.push(market);
+    if (upcomingDates.has(entry.date)) {
+      upcoming.push(entry.market);
     }
   }
 

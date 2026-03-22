@@ -54,7 +54,10 @@ function isSameDay(a: Date, b: Date): boolean {
 }
 
 function dateToString(d: Date): string {
-  return d.toISOString().split("T")[0];
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 /** Renvoie "Aujourd'hui", "Demain" ou null */
@@ -309,6 +312,12 @@ export function MarchesPage({ markets }: MarchesPageProps) {
               </button>
             );
           })}
+
+          {/* Légende absence */}
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium" style={{ color: "var(--text-muted)", border: "1px dashed var(--border-main)" }}>
+            <span className="w-2 h-2 rounded-full" style={{ border: "1.5px dashed var(--text-muted)", opacity: 0.5 }} />
+            Absent
+          </span>
         </div>
       </section>
     </div>
@@ -340,7 +349,7 @@ function UpcomingAbsences({ markets }: { markets: MarketData[] }) {
   if (upcoming.length === 0) return null;
 
   return (
-    <div className="mt-6 rounded-xl px-5 py-4 text-center" style={{ backgroundColor: "rgba(239, 68, 68, 0.05)", border: "1px solid rgba(239, 68, 68, 0.15)" }}>
+    <div className="mt-6 rounded-xl px-5 py-4 text-center" style={{ backgroundColor: "rgba(239, 68, 68, 0.07)", border: "1px solid rgba(239, 68, 68, 0.2)" }}>
       <p className="text-[11px] uppercase tracking-wider font-semibold text-red-400/80 mb-2">Absences prévues</p>
       <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5">
         {upcoming.map((a, i) => {

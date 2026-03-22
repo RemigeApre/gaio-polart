@@ -157,7 +157,6 @@ export function DashboardHome({ user }: { user: DashboardUser }) {
                       <circle cx="12" cy="10" r="3" />
                     </svg>
                   }
-                  soon
                 />
               </>
             )}
@@ -176,22 +175,51 @@ export function DashboardHome({ user }: { user: DashboardUser }) {
                     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                   </svg>
                 }
-                soon
               />
             )}
           </div>
 
-          {/* Raccourcis */}
-          <div className="mt-10 pt-8" style={{ borderTop: "1px solid var(--border-main)" }}>
-            <h2 className="text-[12px] font-semibold uppercase tracking-wider mb-4" style={{ color: "var(--text-muted)" }}>
-              Raccourcis
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              <QuickLink href="/" label="Voir le site" />
-              <QuickLink href="/marches" label="Page marchés" />
-              <QuickLink href="/liste-de-courses" label="Liste de courses" />
-            </div>
+          {/* Retour au site */}
+          <div className="mt-8">
+            <a href="/" className="card px-5 py-4 flex items-center gap-4 group hover:shadow-lg transition-all" style={{ borderColor: "transparent" }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--color-or)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = "transparent"; }}>
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-or/10 text-or">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                  <polyline points="15 3 21 3 21 9" />
+                  <line x1="10" y1="14" x2="21" y2="3" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-[15px] font-bold" style={{ color: "var(--text-main)" }}>Retour au site</h3>
+                <p className="text-[13px] mt-0.5" style={{ color: "var(--text-muted)" }}>Voir le site public</p>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                className="shrink-0 opacity-0 group-hover:opacity-50 transition-opacity" style={{ color: "var(--text-muted)" }}>
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </a>
           </div>
+
+          {/* Fonctionnalités à venir */}
+          {isAdmin && (
+            <div className="mt-10 pt-8" style={{ borderTop: "1px solid var(--border-main)" }}>
+              <h2 className="text-[12px] font-semibold uppercase tracking-wider mb-1" style={{ color: "var(--text-muted)" }}>
+                Potentielles fonctionnalités à venir
+              </h2>
+              <p className="text-[11px] mb-4" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
+                Ces modules sont en réflexion et seront développés selon les besoins.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <FutureCard title="Produits" description="Catalogue, descriptions et catégories" />
+                <FutureCard title="Événements" description="Marchés spéciaux, fêtes, saisons" />
+                <FutureCard title="Stocks" description="Suivi des quantités et commandes" />
+                <FutureCard title="Articles" description="Actualités, annonces, nouveautés" />
+                <FutureCard title="Recettes" description="Idées recettes pour les clients" />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -259,19 +287,16 @@ function DashboardCard({
   return content;
 }
 
-function QuickLink({ href, label }: { href: string; label: string }) {
+function FutureCard({ title, description }: { title: string; description: string }) {
   return (
-    <a
-      href={href}
-      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[12px] font-medium transition-colors hover:bg-or/10 hover:text-or"
-      style={{ color: "var(--text-muted)", border: "1px solid var(--border-main)" }}
-    >
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-        <polyline points="15 3 21 3 21 9" />
-        <line x1="10" y1="14" x2="21" y2="3" />
-      </svg>
-      {label}
-    </a>
+    <div className="card px-4 py-3 opacity-40">
+      <div className="flex items-center gap-2 mb-0.5">
+        <h3 className="text-[13px] font-semibold" style={{ color: "var(--text-main)" }}>{title}</h3>
+        <span className="text-[8px] uppercase tracking-wider px-1.5 py-0.5 rounded-full font-semibold" style={{ backgroundColor: "var(--bg-body)", color: "var(--text-muted)", border: "1px solid var(--border-main)" }}>
+          Idée
+        </span>
+      </div>
+      <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>{description}</p>
+    </div>
   );
 }
