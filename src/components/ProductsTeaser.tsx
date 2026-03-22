@@ -1,59 +1,60 @@
 "use client";
 
 const PRODUCTS = [
-  { name: "Poulet fermier", size: "lg" },
-  { name: "Dinde", size: "base" },
-  { name: "Lapin", size: "xl" },
-  { name: "Coq", size: "sm" },
-  { name: "Poule", size: "base" },
-  { name: "Pintade", size: "lg" },
-  { name: "Oeufs frais", size: "sm" },
-  { name: "Aiguillettes", size: "base" },
-  { name: "Brochettes", size: "lg" },
-  { name: "Émincé", size: "sm" },
-  { name: "Lièvre", size: "xl" },
-  { name: "Gibier", size: "2xl" },
-  { name: "Foie gras", size: "lg" },
-  { name: "Chapon", size: "base" },
+  "Poulet fermier",
+  "Dinde",
+  "Lapin",
+  "Coq",
+  "Poule",
+  "Pintade",
+  "Chapon",
+  "Oeufs fermiers",
+  "Lièvre",
+  "Gibier de saison",
+  "Foie gras",
+  "Brochettes",
+  "Aiguillettes",
+  "Émincé",
 ];
-
-const SIZE_CLASSES: Record<string, string> = {
-  sm: "text-sm opacity-40",
-  base: "text-base opacity-55",
-  lg: "text-lg opacity-70",
-  xl: "text-xl opacity-80",
-  "2xl": "text-2xl opacity-90",
-};
 
 export function ProductsTeaser() {
   return (
-    <section className="py-16">
-      <div className="text-center mb-4">
-        <span className="text-[11px] font-semibold text-or uppercase tracking-[0.18em]">
-          Nos produits
-        </span>
-        <p className="text-base sm:text-lg mt-2 max-w-md mx-auto leading-relaxed" style={{ color: "var(--text-muted)" }}>
-          Volailles fermières, préparations maison, gibier de saison.
-          <br />
-          <span style={{ color: "var(--text-main)" }} className="font-medium">
-            Venez découvrir notre étal.
-          </span>
-        </p>
+    <section className="py-14 max-w-2xl mx-auto px-5">
+      <div className="text-center mb-8">
+        <h2
+          className="text-2xl sm:text-3xl font-bold uppercase tracking-[0.12em]"
+          style={{ color: "var(--text-main)" }}
+        >
+          Nos Produits
+        </h2>
+        <div className="w-10 h-[1.5px] bg-or mx-auto mt-3" />
       </div>
 
-      <div className="max-w-2xl mx-auto px-5 flex flex-wrap items-baseline justify-center gap-x-5 gap-y-3.5 mt-8">
-        {PRODUCTS.map(({ name, size }, i) => {
-          const isGold = i % 3 === 0;
-          return (
+      {/* Défilement organique de mots */}
+      <div className="relative overflow-hidden py-6" style={{ maskImage: "linear-gradient(90deg, transparent, black 10%, black 90%, transparent)", WebkitMaskImage: "linear-gradient(90deg, transparent, black 10%, black 90%, transparent)" }}>
+        <div className="flex gap-6 animate-[scroll_25s_linear_infinite] w-max">
+          {[...PRODUCTS, ...PRODUCTS].map((name, i) => (
             <span
-              key={name}
-              className={`${SIZE_CLASSES[size]} font-[family-name:var(--font-calligraphic)] italic cursor-default hover:!opacity-100 hover:!text-or`}
-              style={{ color: isGold ? "var(--color-or)" : "var(--text-main)" }}
+              key={i}
+              className="text-lg sm:text-xl font-[family-name:var(--font-calligraphic)] italic whitespace-nowrap shrink-0"
+              style={{ color: i % 3 === 0 ? "var(--color-or)" : "var(--text-main)", opacity: 0.7 + (i % 3) * 0.1 }}
             >
               {name}
             </span>
-          );
-        })}
+          ))}
+        </div>
+      </div>
+
+      <div className="text-center mt-6">
+        <p className="text-[14px] sm:text-[15px] leading-relaxed max-w-md mx-auto" style={{ color: "var(--text-muted)" }}>
+          <strong style={{ color: "var(--text-main)" }}>Volailles fermières Label Rouge</strong>, gibier français de saison, préparations maison.
+        </p>
+        <p className="text-[13px] mt-2 font-medium" style={{ color: "var(--text-main)" }}>
+          Venez découvrir notre étal, demandez-nous.
+        </p>
+        <p className="text-[11px] mt-3 italic tracking-wide" style={{ color: "var(--text-muted)" }}>
+          100% viande française · Élevage fermier et plein air · Label Rouge
+        </p>
       </div>
     </section>
   );

@@ -4,6 +4,8 @@ import { HomePage } from "@/components/HomePage";
 import { OrderBanner } from "@/components/OrderBanner";
 import { ProductsTeaser } from "@/components/ProductsTeaser";
 import { About } from "@/components/About";
+import { ShareButton } from "@/components/ShareButton";
+import { ShoppingList } from "@/components/ShoppingList";
 import { getAllMarkets, groupMarketsByUrgency } from "@/lib/markets";
 
 export const dynamic = "force-dynamic";
@@ -39,6 +41,8 @@ export default async function Home() {
         </div>
       </main>
       <Footer />
+      <ShoppingList />
+      <ShareButton />
     </>
   );
 }

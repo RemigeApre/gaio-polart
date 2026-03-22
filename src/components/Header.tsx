@@ -92,6 +92,7 @@ function LoginButton() {
 const NAV_LINKS = [
   { href: "/", label: "Accueil" },
   { href: "/marches", label: "Marchés" },
+  { href: "/liste-de-courses", label: "Ma liste" },
 ];
 
 function NavLink({ href, label, active }: { href: string; label: string; active: boolean }) {

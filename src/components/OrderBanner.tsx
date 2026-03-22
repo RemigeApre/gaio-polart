@@ -109,6 +109,24 @@ export function OrderBanner() {
                 Email
               </a>
             </div>
+
+            {/* Moyens de paiement */}
+            <div className="flex items-center justify-center gap-4 mt-5 pt-4" style={{ borderTop: "1px solid var(--border-main)" }}>
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-medium" style={{ color: "var(--text-muted)" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="1" y="4" width="22" height="16" rx="2" />
+                  <line x1="1" y1="10" x2="23" y2="10" />
+                </svg>
+                Carte bancaire
+              </span>
+              <span style={{ color: "var(--border-main)" }}>·</span>
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-medium" style={{ color: "var(--text-muted)" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                </svg>
+                Espèces
+              </span>
+            </div>
           </div>
         </div>
       </div>
