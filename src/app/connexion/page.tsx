@@ -5,6 +5,7 @@ import { LoginForm } from "@/components/LoginForm";
 export const metadata = {
   title: "Connexion",
   description: "Espace réservé à l'équipe Gaio Polart.",
+  robots: { index: false, follow: false },
 };
 
 export default async function ConnexionPage() {

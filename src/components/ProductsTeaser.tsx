@@ -28,16 +28,20 @@ const SIZE_CLASSES: Record<string, string> = {
 export function ProductsTeaser() {
   return (
     <section className="py-16">
-      <div className="text-center mb-10">
+      <div className="text-center mb-4">
         <span className="text-[11px] font-semibold text-or uppercase tracking-[0.18em]">
           Nos produits
         </span>
-        <p className="text-sm mt-1.5 italic" style={{ color: "var(--text-muted)" }}>
-          Présentation détaillée, bientôt.
+        <p className="text-base sm:text-lg mt-2 max-w-md mx-auto leading-relaxed" style={{ color: "var(--text-muted)" }}>
+          Volailles fermières, préparations maison, gibier de saison.
+          <br />
+          <span style={{ color: "var(--text-main)" }} className="font-medium">
+            Venez découvrir notre étal.
+          </span>
         </p>
       </div>
 
-      <div className="max-w-2xl mx-auto px-5 flex flex-wrap items-baseline justify-center gap-x-5 gap-y-3.5">
+      <div className="max-w-2xl mx-auto px-5 flex flex-wrap items-baseline justify-center gap-x-5 gap-y-3.5 mt-8">
         {PRODUCTS.map(({ name, size }, i) => {
           const isGold = i % 3 === 0;
           return (

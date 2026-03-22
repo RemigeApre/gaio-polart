@@ -6,8 +6,25 @@ import { getAllMarkets } from "@/lib/markets";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Marchés — Gaio Polart",
-  description: "Retrouvez tous les marchés de Gaio Polart en Île-de-France : Gagny, Chelles, Meaux, Villeparisis.",
+  title: "Nos marchés — Volailles & gibier à Gagny, Chelles, Meaux, Villeparisis",
+  description: "Retrouvez Gaio Polart, volailler, sur les marchés de Gagny (samedi), Chelles (mardi, jeudi, dimanche), Meaux (samedi) et Villeparisis (vendredi, dimanche). Poulet fermier Label Rouge, gibier, oeufs fermiers. 7h30 - 13h00, CB et espèces.",
+  keywords: [
+    "marché Gagny volailler",
+    "marché Chelles volaille",
+    "marché Meaux poulet fermier",
+    "marché Villeparisis volaille",
+    "horaires marché Gagny",
+    "horaires marché Chelles",
+    "horaires marché Meaux",
+    "horaires marché Villeparisis",
+    "volailler Seine-et-Marne marché",
+    "volailler Seine-Saint-Denis marché",
+    "où acheter poulet fermier Île-de-France",
+    "gibier marché Seine-et-Marne",
+  ],
+  alternates: {
+    canonical: "/marches",
+  },
 };
 
 export default async function Marches() {

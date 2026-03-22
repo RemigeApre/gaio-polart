@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /connexion
+Disallow: /dashboard
 
-Sitemap: https://gaio-polart.fr/sitemap.xml
+Sitemap: https://gaio-polart.legeai-informatique.fr/sitemap.xml

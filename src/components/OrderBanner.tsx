@@ -81,6 +81,10 @@ export function OrderBanner() {
               et nous aider à <strong className="text-or font-semibold">limiter le gaspillage</strong>.
             </p>
 
+            <p className="text-[13px] mt-2" style={{ color: "var(--text-muted)" }}>
+              Réservation et commande par téléphone, par email ou sur place.
+            </p>
+
             <div className="flex items-center justify-center gap-3 mt-6">
               <a
                 href="#"
