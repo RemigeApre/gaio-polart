@@ -1,7 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useShoppingList } from "@/lib/useShoppingList";
+
+function encodeList(texts: string[]): string {
+  return btoa(encodeURIComponent(JSON.stringify(texts)));
+}
+
+function decodeList(encoded: string): string[] {
+  try {
+    return JSON.parse(decodeURIComponent(atob(encoded)));
+  } catch {
+    return [];
+  }
+}
 
 export function ShoppingListPage() {
   const {
@@ -11,6 +24,31 @@ export function ShoppingListPage() {
   const [input, setInput] = useState("");
   const [showHistory, setShowHistory] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
+
+  // Import depuis URL partagée
+  const searchParams = useSearchParams();
+  const [sharedItems, setSharedItems] = useState<string[]>([]);
+  const [importDone, setImportDone] = useState(false);
+
+  useEffect(() => {
+    const listParam = searchParams.get("list");
+    if (listParam) {
+      const decoded = decodeList(listParam);
+      if (decoded.length > 0) setSharedItems(decoded);
+    }
+  }, [searchParams]);
+
+  const importSharedItems = () => {
+    for (const text of sharedItems) {
+      addItem(text);
+    }
+    setImportDone(true);
+    setSharedItems([]);
+    // Nettoyer l'URL
+    window.history.replaceState({}, "", "/liste-de-courses");
+  };
 
   if (!mounted) return null;
 
@@ -29,6 +67,32 @@ export function ShoppingListPage() {
     setConfirmClear(false);
   };
 
+  // Générer le lien de partage
+  const uncheckedItems = items.filter((i) => !i.checked);
+  const shareUrl = typeof window !== "undefined" && uncheckedItems.length > 0
+    ? `${window.location.origin}/liste-de-courses?list=${encodeList(uncheckedItems.map((i) => i.text))}`
+    : "";
+
+  const shareText = uncheckedItems.length > 0
+    ? `Ma liste de courses :\n${uncheckedItems.map((i) => `- ${i.text}`).join("\n")}\n\nOuvrir la liste :`
+    : "";
+
+  const handleShareCopy = async () => {
+    await navigator.clipboard.writeText(shareUrl);
+    setShareCopied(true);
+    setTimeout(() => setShareCopied(false), 2000);
+  };
+
+  const handleNativeShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "Ma liste de courses", text: shareText, url: shareUrl });
+      } catch {}
+    } else {
+      setShareOpen(!shareOpen);
+    }
+  };
+
   const formatTime = (ts: number) => {
     const d = new Date(ts);
     const now = new Date();
@@ -41,6 +105,45 @@ export function ShoppingListPage() {
 
   return (
     <div className="max-w-lg mx-auto px-5 pt-8 pb-12">
+      {/* Bannière d'import (liste partagée) */}
+      {sharedItems.length > 0 && !importDone && (
+        <div className="card px-5 py-5 mb-6 text-center" style={{ borderColor: "var(--color-or)" }}>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mx-auto mb-3 text-or">
+            <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+            <circle cx="8.5" cy="7" r="4" />
+            <line x1="20" y1="8" x2="20" y2="14" />
+            <line x1="23" y1="11" x2="17" y2="11" />
+          </svg>
+          <h3 className="text-[15px] font-bold mb-1" style={{ color: "var(--text-main)" }}>
+            Un proche vous partage sa liste
+          </h3>
+          <p className="text-[13px] mb-4" style={{ color: "var(--text-muted)" }}>
+            {sharedItems.length} article{sharedItems.length > 1 ? "s" : ""} à ajouter :
+          </p>
+          <div className="flex flex-wrap justify-center gap-1.5 mb-4">
+            {sharedItems.map((text, i) => (
+              <span key={i} className="text-[12px] px-2.5 py-1 rounded-full font-medium" style={{ backgroundColor: "var(--bg-body)", color: "var(--text-main)", border: "1px solid var(--border-main)" }}>
+                {text}
+              </span>
+            ))}
+          </div>
+          <button
+            onClick={importSharedItems}
+            className="px-6 py-2.5 rounded-xl bg-or text-noir-light text-[13px] font-bold transition-colors hover:bg-or-light"
+          >
+            Ajouter à ma liste
+          </button>
+        </div>
+      )}
+
+      {importDone && (
+        <div className="card px-5 py-4 mb-6 text-center" style={{ borderColor: "rgba(34, 197, 94, 0.3)" }}>
+          <p className="text-[13px] font-medium text-green-500">
+            Articles ajoutés à votre liste.
+          </p>
+        </div>
+      )}
+
       {/* Titre */}
       <div className="text-center mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold uppercase tracking-[0.12em]" style={{ color: "var(--text-main)" }}>
@@ -94,6 +197,24 @@ export function ShoppingListPage() {
               : `${items.length} article${items.length > 1 ? "s" : ""}${checkedCount > 0 ? ` · ${checkedCount} pris` : ""}`}
           </span>
           <div className="flex items-center gap-2">
+            {/* Bouton partager */}
+            {uncheckedItems.length > 0 && (
+              <button
+                onClick={handleNativeShare}
+                className="text-[11px] font-medium px-3 py-1 rounded-lg border transition-colors hover:bg-or/10 hover:text-or"
+                style={{ borderColor: "var(--border-main)", color: "var(--text-muted)" }}
+                title="Partager ma liste"
+              >
+                <span className="hidden sm:inline">Partager</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="sm:hidden">
+                  <circle cx="18" cy="5" r="3" />
+                  <circle cx="6" cy="12" r="3" />
+                  <circle cx="18" cy="19" r="3" />
+                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                  <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                </svg>
+              </button>
+            )}
             {checkedCount > 0 && (
               <button
                 onClick={clearChecked}
@@ -118,6 +239,42 @@ export function ShoppingListPage() {
             )}
           </div>
         </div>
+
+        {/* Menu de partage (desktop) */}
+        {shareOpen && uncheckedItems.length > 0 && (
+          <div className="px-4 sm:px-5 py-3 flex flex-wrap items-center justify-center gap-2" style={{ borderBottom: "1px solid var(--border-main)", backgroundColor: "var(--bg-body)" }}>
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(shareText + " " + shareUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium border transition-colors hover:bg-green-500/10"
+              style={{ borderColor: "var(--border-main)", color: "var(--text-main)" }}
+            >
+              WhatsApp
+            </a>
+            <a
+              href={`sms:?body=${encodeURIComponent(shareText + " " + shareUrl)}`}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium border transition-colors hover:bg-blue-500/10"
+              style={{ borderColor: "var(--border-main)", color: "var(--text-main)" }}
+            >
+              SMS
+            </a>
+            <a
+              href={`mailto:?subject=${encodeURIComponent("Ma liste de courses")}&body=${encodeURIComponent(shareText + "\n" + shareUrl)}`}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium border transition-colors hover:bg-or/10"
+              style={{ borderColor: "var(--border-main)", color: "var(--text-main)" }}
+            >
+              Email
+            </a>
+            <button
+              onClick={handleShareCopy}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium border transition-colors hover:bg-or/10"
+              style={{ borderColor: "var(--border-main)", color: shareCopied ? "var(--color-or)" : "var(--text-main)" }}
+            >
+              {shareCopied ? "Copié" : "Copier le lien"}
+            </button>
+          </div>
+        )}
 
         {/* Items */}
         <div className="divide-y" style={{ borderColor: "var(--border-main)" }}>
@@ -205,7 +362,7 @@ export function ShoppingListPage() {
                 >
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] truncate" style={{ color: "var(--text-main)" }}>
-                      {batch.items.map((i) => i.text).join(", ")}
+                      {batch.items.map((item) => item.text).join(", ")}
                     </p>
                     <p className="text-[10px] mt-0.5" style={{ color: "var(--text-muted)" }}>
                       {formatTime(batch.deletedAt)} · {batch.items.length} article{batch.items.length > 1 ? "s" : ""}
