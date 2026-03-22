@@ -16,6 +16,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
+# Compile le seed en JS pour la prod
+RUN npx tsc prisma/seed.ts --outDir prisma/dist --esModuleInterop --module commonjs --skipLibCheck
 
 # ========================
 # Stage 3 : Production
@@ -34,7 +36,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=deps /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=deps /app/node_modules/@prisma ./node_modules/@prisma
-COPY prisma ./prisma/
+COPY --from=deps /app/node_modules/bcryptjs ./node_modules/bcryptjs
+COPY prisma/schema.prisma ./prisma/
+COPY --from=builder /app/prisma/dist ./prisma/dist
 
 USER nextjs
 EXPOSE 3000
