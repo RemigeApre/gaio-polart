@@ -142,10 +142,10 @@ export function ShoppingList() {
                   </span>
                   <button
                     onClick={() => removeItem(item.id)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity w-6 h-6 flex items-center justify-center rounded-full hover:bg-red-500/10 shrink-0"
-                    style={{ color: "var(--text-muted)" }}
+                    className="w-7 h-7 flex items-center justify-center rounded-full shrink-0 transition-colors bg-red-500/[0.06] hover:bg-red-500/15 active:bg-red-500/25 text-red-400/50 hover:text-red-400"
+                    aria-label="Supprimer"
                   >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                       <line x1="18" y1="6" x2="6" y2="18" />
                       <line x1="6" y1="6" x2="18" y2="18" />
                     </svg>
